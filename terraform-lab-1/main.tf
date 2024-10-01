@@ -64,7 +64,7 @@ resource "aws_route_table" "private_route_table" {
   vpc_id = aws_vpc.vpc.id
 
   route {
-    cidr_block     = "0.0.0.0/0"
+    cidr_block = "0.0.0.0/0"
     # gateway_id     = aws_internet_gateway.internet_gateway.id
     nat_gateway_id = aws_nat_gateway.nat_gateway.id
   }
@@ -117,8 +117,8 @@ resource "aws_nat_gateway" "nat_gateway" {
 }
 
 resource "aws_instance" "web" {
-  ami                    = "ami-0ebfd941bbafe70c6"
-  instance_type          = "t3.micro"
+  ami           = "ami-0ebfd941bbafe70c6"
+  instance_type = "t3.micro"
 
   subnet_id              = aws_subnet.public_subnets["public_subnet_1"].id
   vpc_security_group_ids = ["sg-07d6967981cb5dbf9"]
@@ -128,19 +128,19 @@ resource "aws_instance" "web" {
   }
 }
 
-resource "aws_s3_bucket" "my-new-S3-bucket" {   
+resource "aws_s3_bucket" "my-new-S3-bucket" {
   bucket = "my-new-tf-test-bucket-przemo-${random_id.randomness.hex}"
 
-  tags = {     
-    Name = "My S3 Bucket"     
-    Purpose = "Intro to Resource Blocks Lab"   
-  } 
+  tags = {
+    Name    = "My S3 Bucket"
+    Purpose = "Intro to Resource Blocks Lab"
+  }
 }
 
-resource "aws_s3_bucket_ownership_controls" "my_new_bucket_acl" {   
-  bucket = aws_s3_bucket.my-new-S3-bucket.id  
-  rule {     
-    object_ownership = "BucketOwnerPreferred"   
+resource "aws_s3_bucket_ownership_controls" "my_new_bucket_acl" {
+  bucket = aws_s3_bucket.my-new-S3-bucket.id
+  rule {
+    object_ownership = "BucketOwnerPreferred"
   }
 }
 
@@ -165,4 +165,16 @@ resource "aws_security_group" "my-new-security-group" {
 
 resource "random_id" "randomness" {
   byte_length = 16
+}
+
+resource "aws_subnet" "variables-subnet" {
+  vpc_id                  = aws_vpc.vpc.id
+  cidr_block              = var.variables_sub_cidr
+  availability_zone       = var.variables_sub_az
+  map_public_ip_on_launch = var.variables_sub_auto_ip
+
+  tags = {
+    Name      = "sub-variables-${var.variables_sub_az}"
+    Terraform = "true"
+  }
 }
