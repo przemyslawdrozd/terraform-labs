@@ -8,8 +8,8 @@ data "aws_availability_zones" "available" {}
 data "aws_region" "current" {}
 
 locals {
-  team = "api_mgmt_dev"
-  app = "corp_api"
+  team        = "api_mgmt_dev"
+  app         = "corp_api"
   server_name = "ec2-${var.environment}-api-${var.variables_sub_az}"
 }
 
@@ -131,9 +131,9 @@ resource "aws_instance" "web_server" {
   vpc_security_group_ids = ["sg-07d6967981cb5dbf9"]
 
   tags = {
-    Name = local.server_name
+    Name  = local.server_name
     Owner = local.team
-    App = local.app
+    App   = local.app
   }
 }
 
@@ -186,4 +186,12 @@ resource "aws_subnet" "variables-subnet" {
     Name      = "sub-variables-${var.variables_sub_az}"
     Terraform = "true"
   }
+}
+resource "tls_private_key" "generated" {
+  algorithm = "RSA"
+}
+
+resource "local_file" "private_key_pem" {
+  content  = tls_private_key.generated.private_key_pem
+  filename = "MyAWSKey.pem"
 }
