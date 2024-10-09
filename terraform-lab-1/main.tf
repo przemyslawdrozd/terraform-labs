@@ -128,7 +128,7 @@ resource "aws_instance" "web_server" {
   instance_type = "t3.micro"
 
   subnet_id              = aws_subnet.public_subnets["public_subnet_1"].id
-  vpc_security_group_ids = ["sg-07d6967981cb5dbf9"]
+  vpc_security_group_ids = [aws_security_group.my-new-security-group.id]
 
   tags = {
     Name  = local.server_name
@@ -277,11 +277,23 @@ resource "aws_security_group" "vpc-ping" {
   }
 }
 
+# Terraform Data Block - Lookup Ubuntu 22.04
+data "aws_ami" "ubuntu" {
+  most_recent = true
+
+  filter {
+    name   = "name"
+    values = ["ubuntu/images/hvm-ssd/ubuntu-jammy-22.04-amd64-server-*"]
+  }
+
+  owners = ["099720109477"]
+}
+
 resource "aws_instance" "ubuntu_server" {
   ami                         = data.aws_ami.ubuntu.id
   instance_type               = "t3.micro"
   subnet_id                   = aws_subnet.public_subnets["public_subnet_1"].id
-  security_groups             = [aws_security_group.vpc-ping.id, aws_security_group.ingress-ssh.id, aws_security_group.vpc-web.id] 
+  security_groups             = [aws_security_group.vpc-ping.id, aws_security_group.ingress-ssh.id, aws_security_group.vpc-web.id]
   associate_public_ip_address = true
   key_name                    = aws_key_pair.generated.key_name
   connection {
@@ -310,4 +322,41 @@ resource "aws_instance" "ubuntu_server" {
     ignore_changes = [security_groups]
   }
 
+}
+
+module "server" {
+  source    = "./modules/server"
+  ami       = data.aws_ami.ubuntu.id
+  subnet_id = aws_subnet.public_subnets["public_subnet_3"].id
+  security_groups = [
+    aws_security_group.vpc-ping.id,
+    aws_security_group.ingress-ssh.id,
+    aws_security_group.vpc-web.id
+  ]
+}
+module "server_subnet_1" {
+  source    = "./modules/server"
+  ami       = data.aws_ami.ubuntu.id
+  subnet_id = aws_subnet.public_subnets["public_subnet_1"].id
+  security_groups = [
+    aws_security_group.vpc-ping.id,
+    aws_security_group.ingress-ssh.id,
+    aws_security_group.vpc-web.id
+  ]
+}
+
+output "public_ip" {
+  value = module.server.public_ip
+}
+
+output "public_dns" {
+  value = module.server.public_dns
+}
+
+output "public_ip_server_subnet_1" {
+  value = module.server_subnet_1.public_ip
+}
+
+output "public_dns_server_subnet_1" {
+  value = module.server_subnet_1.public_dns
 }
