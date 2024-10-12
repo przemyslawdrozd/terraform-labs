@@ -425,8 +425,8 @@ module "vpc" {
   enable_vpn_gateway = true
 
   tags = {
-    Name = "VPC from Module"
-    Terraform = "true"
+    Name        = "VPC from Module"
+    Terraform   = "true"
     Environment = "dev"
   }
 }
