@@ -3,6 +3,9 @@ terraform {
     bucket = "<bucket_name>"
     key    = "dev/aws_infra"
     region = "us-east-1"
+
+    dynamodb_table = "terraform-locks"
+    encrypt        = true
   }
 
   required_version = ">= 1.0.0"
