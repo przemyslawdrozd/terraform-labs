@@ -446,3 +446,25 @@ module "vpc" {
     Environment = "dev"
   }
 }
+
+data "aws_s3_bucket" "data_bucket" {
+  bucket = "<maunal_created_bucket_name>"
+}
+
+resource "aws_iam_policy" "policy" {
+  name        = "data_bucket_policy"
+  description = "Allow access to my bucket"
+  policy = jsonencode({
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": [
+                "s3:Get*",
+                "s3:List*"
+            ],
+            "Resource": "${data.aws_s3_bucket.data_bucket.arn}"
+        }
+    ]
+  })
+}

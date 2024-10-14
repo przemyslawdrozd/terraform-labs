@@ -17,3 +17,15 @@ output "vpc_information" {
   description = "VPC Information about Environment"
   value       = "Your ${aws_vpc.vpc.tags.Environment} VPC has an ID of ${aws_vpc.vpc.id}"
 }
+
+output "data-bucket-arn" {
+  value = data.aws_s3_bucket.data_bucket.arn
+}
+
+output "data-bucket-domain-name" {
+  value = data.aws_s3_bucket.data_bucket.bucket_domain_name
+}
+
+output "data-bucket-region" {
+  value = "The ${data.aws_s3_bucket.data_bucket.id} bucket is located in ${data.aws_s3_bucket.data_bucket.region}"
+}
