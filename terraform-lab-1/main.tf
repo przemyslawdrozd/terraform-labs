@@ -20,6 +20,11 @@ locals {
 }
 
 locals {
+  maximum = max(var.num_1, var.num_2, var.num_3)
+  minimum = min(var.num_1, var.num_2, var.num_3, 44, 20)
+}
+
+locals {
   # Common tags to be assigned to all resources
   common_tags = {
     Name      = local .server_name
@@ -36,10 +41,10 @@ resource "aws_vpc" "vpc" {
   cidr_block = var.vpc_cidr
 
   tags = {
-    Name        = var.vpc_name
-    Environment = "demo_environment"
-    Terraform   = "true"
-    Region      = data.aws_region.current.name
+    Name        = upper(var.vpc_name)
+    Environment = upper("demo_environment")
+    Terraform   = lower("true")
+    Region      = upper(data.aws_region.current.name)
   }
 }
 
@@ -467,4 +472,12 @@ resource "aws_iam_policy" "policy" {
         }
     ]
   })
+}
+
+output "max_value" {
+  value = local.maximum
+}
+
+output "min_value" {
+  value = local.minimum
 }
